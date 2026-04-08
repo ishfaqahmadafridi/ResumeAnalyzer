@@ -18,9 +18,11 @@ import { parseJson } from "@/lib/utils";
 import { useAppSelector } from "@/store";
 import { SectionCard } from "@/components/section-card";
 import { StatCard } from "@/components/stat-card";
+import { useHydrated } from "@/hooks/use-hydrated";
 import type { CVRoleAnalysis } from "@/types";
 
 export function DashboardOverview() {
+  const hydrated = useHydrated();
   const user = useAppSelector((state) => state.auth.user);
   const cvs = useAppSelector((state) => state.cv.items);
   const latestCv = cvs[0] ?? null;
@@ -74,13 +76,15 @@ export function DashboardOverview() {
         <SectionCard title="Overall CV Health" description="A quick visual summary of your latest analysis result.">
           <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
             <div className="h-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart innerRadius="68%" outerRadius="100%" data={[{ score }]} startAngle={90} endAngle={-270}>
-                  <PolarGrid radialLines={false} stroke="#d6d0c4" />
-                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-                  <RadialBar dataKey="score" cornerRadius={18} fill="#14532d" />
-                </RadialBarChart>
-              </ResponsiveContainer>
+              {hydrated ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart innerRadius="68%" outerRadius="100%" data={[{ score }]} startAngle={90} endAngle={-270}>
+                    <PolarGrid radialLines={false} stroke="#d6d0c4" />
+                    <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                    <RadialBar dataKey="score" cornerRadius={18} fill="#14532d" />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              ) : null}
             </div>
             <div className="space-y-4">
               <p className="text-sm text-stone-600">
@@ -105,28 +109,32 @@ export function DashboardOverview() {
 
         <SectionCard title="Improvement Areas" description="Top missing skills blocking stronger role fit.">
           <div className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={improvementData}>
-                <XAxis dataKey="skill" hide />
-                <YAxis hide />
-                <Tooltip />
-                <Bar dataKey="weight" radius={[18, 18, 6, 6]} fill="#c76b2f" />
-              </BarChart>
-            </ResponsiveContainer>
+            {hydrated ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={improvementData}>
+                  <XAxis dataKey="skill" hide />
+                  <YAxis hide />
+                  <Tooltip />
+                  <Bar dataKey="weight" radius={[18, 18, 6, 6]} fill="#c76b2f" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : null}
           </div>
         </SectionCard>
       </div>
 
       <SectionCard title="Role Match Breakdown" description="Recommended roles and how strongly your CV currently aligns.">
         <div className="h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={matchBreakdown}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="match" radius={[14, 14, 0, 0]} fill="#14532d" />
-            </BarChart>
-          </ResponsiveContainer>
+          {hydrated ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={matchBreakdown}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="match" radius={[14, 14, 0, 0]} fill="#14532d" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : null}
         </div>
       </SectionCard>
     </div>
