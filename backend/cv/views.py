@@ -30,7 +30,25 @@ class CVUploadView(APIView):
         if uploaded_file is None:
             return Response({"detail": "A CV file is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        file_name = (getattr(uploaded_file, "name", "") or "").lower()
+        if not file_name.endswith((".pdf", ".docx", ".txt")):
+            return Response(
+                {"detail": "Unsupported CV format. Please upload a PDF, DOCX, or TXT file."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         extracted_text = extract_text_from_uploaded_file(uploaded_file)
+        if not extracted_text.strip():
+            return Response(
+                {
+                    "detail": (
+                        "We could not extract readable text from this file. "
+                        "Please upload a text-based PDF, DOCX, or TXT CV."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         cv = CV.objects.create(user=request.user, encrypted_file=uploaded_file, raw_text=extracted_text)
 
         analysis = analyze_cv_text(extracted_text)
@@ -39,7 +57,13 @@ class CVUploadView(APIView):
         VerificationResult.objects.create(
             cv=cv,
             is_verified=bool(extracted_text.strip()),
-            details="CV text extracted successfully." if extracted_text.strip() else "Upload saved, but no text could be extracted.",
+            details={
+                "message": (
+                    "CV text extracted successfully."
+                    if extracted_text.strip()
+                    else "Upload saved, but no text could be extracted."
+                )
+            },
         )
         return Response(CVSerializer(cv).data, status=status.HTTP_201_CREATED)
 

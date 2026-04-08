@@ -19,6 +19,50 @@ function roleAnalysisFromStored(value: string | null | undefined, score = 0) {
   };
 }
 
+function formatCvCreatedAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function getUploadGuidance(message: string, fileName?: string | null) {
+  const lowerMessage = message.toLowerCase();
+  const lowerFileName = (fileName ?? "").toLowerCase();
+
+  if (lowerMessage.includes("could not extract readable text")) {
+    return {
+      title: "We couldn't read text from that CV",
+      summary: "This usually means the file is a scanned PDF or an exported image-based resume.",
+      steps: [
+        "Open the CV and try Save as Word or export it as a text-based PDF.",
+        "If you have the source file, upload the DOCX version instead.",
+        "If the CV was scanned from paper, convert it with OCR first, then upload it again.",
+      ],
+      tip: lowerFileName.endsWith(".pdf")
+        ? "This PDF looks image-based, so the extractor cannot read the resume text yet."
+        : "Try uploading a DOCX or TXT version for the best results.",
+    };
+  }
+
+  return {
+    title: "Upload failed",
+    summary: message,
+    steps: [
+      "Check that the file is a PDF, DOCX, or TXT document.",
+      "Try another copy of the CV if this file may be corrupted.",
+    ],
+    tip: "If the problem keeps happening, we can add a stronger upload fallback next.",
+  };
+}
+
 export function CVWorkspace() {
   const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
@@ -28,6 +72,7 @@ export function CVWorkspace() {
   const latestRoleAnalysis = useAppSelector((state) => state.cv.latestRoleAnalysis);
   const [isPending, startTransition] = useTransition();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadIssue, setUploadIssue] = useState<ReturnType<typeof getUploadGuidance> | null>(null);
 
   const selectedCv = useMemo(
     () => cvs.find((item) => item.id === selectedCvId) ?? cvs[0] ?? null,
@@ -56,10 +101,16 @@ export function CVWorkspace() {
     if (!token || !selectedFile) return;
     try {
       const uploaded = await api.uploadCV(token, selectedFile);
+      setUploadIssue(null);
       dispatch(upsertCV(uploaded));
       toast.success("CV uploaded and analyzed");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Upload failed");
+      const message = error instanceof Error ? error.message : "Upload failed";
+      const guidance = getUploadGuidance(message, selectedFile.name);
+      setUploadIssue(guidance);
+      toast.error(guidance.title, {
+        description: guidance.tip,
+      });
     }
   }
 
@@ -85,13 +136,36 @@ export function CVWorkspace() {
         <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[24px] border border-dashed border-black/10 bg-stone-50/70 p-5">
             <p className="text-sm font-semibold text-stone-900">Upload a fresh CV</p>
-            <p className="mt-1 text-sm text-stone-600">PDF works best with the current backend extractor.</p>
+            <p className="mt-1 text-sm text-stone-600">Use a text-based PDF, DOCX, or TXT file. Scanned PDFs are not supported yet.</p>
+            <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-stone-500">How it works</p>
+              <div className="mt-3 space-y-2 text-sm text-stone-700">
+                <p>1. Upload your CV and we extract the readable text from the file.</p>
+                <p>2. We analyze your skills, profile details, and role fit from that text.</p>
+                <p>3. You get recommended roles, missing skills, and a clearer direction for improvement.</p>
+              </div>
+            </div>
             <input
               type="file"
-              accept=".pdf,.doc,.docx,.txt"
-              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+              accept=".pdf,.docx,.txt"
+              onChange={(event) => {
+                setSelectedFile(event.target.files?.[0] ?? null);
+                setUploadIssue(null);
+              }}
               className="mt-4 block w-full rounded-2xl border border-black/10 bg-white px-4 py-3"
             />
+            {uploadIssue ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-red-800">
+                <p className="text-sm font-semibold">{uploadIssue.title}</p>
+                <p className="mt-2 text-sm">{uploadIssue.summary}</p>
+                <div className="mt-3 space-y-2 text-sm">
+                  {uploadIssue.steps.map((step) => (
+                    <p key={step}>{step}</p>
+                  ))}
+                </div>
+                <p className="mt-3 text-sm font-medium">{uploadIssue.tip}</p>
+              </div>
+            ) : null}
             <button
               onClick={() => void uploadCV()}
               disabled={!selectedFile || isPending}
@@ -112,7 +186,7 @@ export function CVWorkspace() {
                       selectedCv?.id === cv.id ? "border-emerald-700 bg-emerald-50" : "border-black/10 bg-stone-50"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-stone-900">{new Date(cv.created_at).toLocaleDateString()}</p>
+                    <p className="text-sm font-semibold text-stone-900">{formatCvCreatedAt(cv.created_at)}</p>
                     <p className="mt-1 text-xs text-stone-600">{cv.raw_text?.slice(0, 120) || "No extracted text preview"}</p>
                   </button>
                 ))
