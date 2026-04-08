@@ -1,0 +1,103 @@
+# =========================
+# OS / SYSTEM FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# PYTHON / DJANGO BACKEND
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Local databases and runtime files
+*.sqlite3
+db.sqlite3
+
+# Django local/runtime
+local_settings.py
+media/
+staticfiles/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Coverage / testing
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+
+# =========================
+# AI / LLM CACHE / ARTIFACTS
+# =========================
+.langchain/
+.cache/
+chroma/
+vectorstore/
+faiss_index/
+
+# Local uploads
+cv_uploads/
+uploads/
+media/cv/
+
+# =========================
+# NODE / NEXT.JS FRONTEND
+# =========================
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js/Vercel local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vercel/
+
+# TypeScript build metadata
+*.tsbuildinfo
+
+# Frontend tool outputs
+frontend/tsc_output.txt
+
+# =========================
+# IDE / EDITORS
+# =========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# DOCKER (LOCAL OVERRIDES)
+# =========================
+docker-compose.override.yml
+
+# =========================
+# MISC TEMP FILES
+# =========================
+*.log
+*.bak
+*.swp
+*.tmp
