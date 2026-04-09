@@ -22,6 +22,32 @@ def _replace_recommended_roles(cv: CV, recommended_roles: list[dict]) -> None:
     )
 
 
+def _save_analysis_result(cv: CV, analysis: dict) -> None:
+    AnalysisResult.objects.update_or_create(
+        cv=cv,
+        defaults={
+            "full_json_state": json.dumps(analysis),
+            "score": analysis["score"],
+        },
+    )
+
+
+def _save_verification_result(cv: CV, extracted_text: str) -> None:
+    VerificationResult.objects.update_or_create(
+        cv=cv,
+        defaults={
+            "is_verified": bool(extracted_text.strip()),
+            "details": {
+                "message": (
+                    "CV text extracted successfully."
+                    if extracted_text.strip()
+                    else "Upload saved, but no text could be extracted."
+                )
+            },
+        },
+    )
+
+
 class CVUploadView(APIView):
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
@@ -52,19 +78,9 @@ class CVUploadView(APIView):
         cv = CV.objects.create(user=request.user, encrypted_file=uploaded_file, raw_text=extracted_text)
 
         analysis = analyze_cv_text(extracted_text)
-        AnalysisResult.objects.create(cv=cv, full_json_state=json.dumps(analysis), score=analysis["score"])
+        _save_analysis_result(cv, analysis)
         _replace_recommended_roles(cv, analysis["recommended_roles"])
-        VerificationResult.objects.create(
-            cv=cv,
-            is_verified=bool(extracted_text.strip()),
-            details={
-                "message": (
-                    "CV text extracted successfully."
-                    if extracted_text.strip()
-                    else "Upload saved, but no text could be extracted."
-                )
-            },
-        )
+        _save_verification_result(cv, extracted_text)
         return Response(CVSerializer(cv).data, status=status.HTTP_201_CREATED)
 
 
@@ -101,7 +117,7 @@ class CVRoleAnalysisView(APIView):
             return Response({"detail": "CV not found."}, status=status.HTTP_404_NOT_FOUND)
 
         analysis = analyze_cv_text(cv.raw_text or "", selected_role=selected_role)
-        AnalysisResult.objects.create(cv=cv, full_json_state=json.dumps(analysis), score=analysis["score"])
+        _save_analysis_result(cv, analysis)
         _replace_recommended_roles(cv, analysis["recommended_roles"])
         return Response(analysis)
 

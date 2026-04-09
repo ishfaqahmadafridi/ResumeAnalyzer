@@ -73,6 +73,7 @@ export function CVWorkspace() {
   const [isPending, startTransition] = useTransition();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadIssue, setUploadIssue] = useState<ReturnType<typeof getUploadGuidance> | null>(null);
+  const [customRole, setCustomRole] = useState("");
 
   const selectedCv = useMemo(
     () => cvs.find((item) => item.id === selectedCvId) ?? cvs[0] ?? null,
@@ -95,6 +96,7 @@ export function CVWorkspace() {
     if (!selectedCv?.latest_analysis) return;
     const parsed = roleAnalysisFromStored(selectedCv.latest_analysis.full_json_state, selectedCv.latest_analysis.score);
     dispatch(setRoleAnalysis(parsed));
+    dispatch(selectRole(parsed?.analysis?.role ?? null));
   }, [dispatch, selectedCv]);
 
   async function uploadCV() {
@@ -102,6 +104,8 @@ export function CVWorkspace() {
     try {
       const uploaded = await api.uploadCV(token, selectedFile);
       setUploadIssue(null);
+      setCustomRole("");
+      dispatch(selectRole(null));
       dispatch(upsertCV(uploaded));
       toast.success("CV uploaded and analyzed");
     } catch (error) {
@@ -126,9 +130,23 @@ export function CVWorkspace() {
     }
   }
 
+  async function analyzeCustomRole() {
+    const role = customRole.trim();
+    if (!role) {
+      toast.error("Enter a role first", {
+        description: "Example: Mechanical Engineer, Data Analyst, or QA Engineer.",
+      });
+      return;
+    }
+
+    await analyzeRole(role);
+  }
+
   const recommendedRoles = latestRoleAnalysis?.recommended_roles ?? [];
   const analysis = latestRoleAnalysis?.analysis;
   const structured = latestRoleAnalysis?.structured_data;
+  const detectedSkills = structured?.skills ?? [];
+  const hasDetectedProfileSignals = Boolean(structured?.summary || structured?.experience?.length || structured?.projects?.length || detectedSkills.length);
 
   return (
     <div className="space-y-6">
@@ -201,6 +219,27 @@ export function CVWorkspace() {
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <SectionCard title="Recommended Roles" description="Choose the primary role you want this CV optimized for.">
           <div className="space-y-3">
+            <div className="rounded-2xl border border-black/10 bg-stone-50 p-4">
+              <p className="text-sm font-semibold text-stone-900">Choose or enter a role</p>
+              <p className="mt-1 text-sm text-stone-600">
+                If no suggested role appears, type the role you want and run the analysis yourself.
+              </p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <input
+                  value={customRole}
+                  onChange={(event) => setCustomRole(event.target.value)}
+                  placeholder="Example: Mechanical Engineer"
+                  className="min-w-0 flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 outline-none"
+                />
+                <button
+                  onClick={() => void analyzeCustomRole()}
+                  disabled={!selectedCv || isPending}
+                  className="rounded-2xl bg-stone-950 px-4 py-3 text-sm font-semibold text-stone-50 disabled:opacity-60"
+                >
+                  Analyze this role
+                </button>
+              </div>
+            </div>
             {recommendedRoles.length ? (
               recommendedRoles.map((role) => (
                 <button
@@ -224,7 +263,17 @@ export function CVWorkspace() {
                 </button>
               ))
             ) : (
-              <p className="text-sm text-stone-500">Upload a CV to generate role suggestions.</p>
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-amber-900">
+                <p className="text-sm font-semibold">We could not confidently detect the CV field yet</p>
+                <p className="mt-2 text-sm">
+                  {hasDetectedProfileSignals
+                    ? "The CV text was uploaded, but we could not find enough reliable skill or role signals to assign recommended roles."
+                    : "This CV does not contain enough readable summary, skills, or experience details to assign recommended roles automatically."}
+                </p>
+                <p className="mt-3 text-sm">
+                  Type your own target role above, for example <span className="font-semibold">HR</span>, <span className="font-semibold">Mechanical Engineer</span>, or <span className="font-semibold">QA Engineer</span>, and we will generate the role-fit breakdown for that role.
+                </p>
+              </div>
             )}
           </div>
         </SectionCard>
@@ -267,7 +316,9 @@ export function CVWorkspace() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-stone-500">Role analysis will appear here after you upload a CV and choose a role.</p>
+            <p className="text-sm text-stone-500">
+              Role analysis will appear here after you upload a CV and choose a suggested role or enter your own role.
+            </p>
           )}
         </SectionCard>
       </div>
@@ -282,13 +333,19 @@ export function CVWorkspace() {
           </div>
           <div>
             <p className="mb-3 text-sm font-semibold text-stone-900">Skills</p>
-            <div className="flex flex-wrap gap-2">
-              {(structured?.skills ?? []).map((skill) => (
-                <span key={skill} className="rounded-full border border-black/10 bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
-                  {skill}
-                </span>
-              ))}
-            </div>
+            {detectedSkills.length ? (
+              <div className="flex flex-wrap gap-2">
+                {detectedSkills.map((skill) => (
+                  <span key={skill} className="rounded-full border border-black/10 bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-stone-500">
+                No reliable skills were detected from this CV yet. You can still type your own target role above and analyze it manually.
+              </p>
+            )}
           </div>
         </div>
       </SectionCard>
