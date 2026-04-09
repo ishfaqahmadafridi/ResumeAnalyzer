@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { clearAuth } from "@/store/auth-slice";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { useUIStore } from "@/store/ui-store";
+import { useNotificationStore } from "@/store/notification-store";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -48,6 +49,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const user = useAppSelector((state) => state.auth.user);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const setSidebarOpen = useUIStore((state) => state.setSidebarOpen);
+  const { notifications, markAsRead } = useNotificationStore();
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  
   const currentMeta = pageMeta[pathname] ?? {
     eyebrow: "CV analysis platform",
     title: "Manage your documents, role fit, and application workflow",
@@ -190,14 +194,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <CircleHelp className="h-4 w-4" />
               </button>
-              <button
+              <Link
+                href="/dashboard/notifications"
                 className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-stone-600 transition hover:bg-stone-50 hover:text-stone-950"
                 aria-label="Notifications"
                 title="Notifications"
+                onClick={markAsRead}
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-              </button>
+                {unreadCount > 0 && (
+                  <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                )}
+              </Link>
               <Link
                 href="/dashboard/profile"
                 className="inline-flex items-center gap-3 rounded-full border border-black/10 bg-white px-2.5 py-1.5 text-stone-900 transition hover:bg-stone-50"
