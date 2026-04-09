@@ -1,39 +1,125 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { EyeOff, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { SectionCard } from "@/components/section-card";
 import { useAppSelector } from "@/store";
 import type { AgentWorkflowResult } from "@/types";
 
+type PlatformEntry = {
+  id: string;
+  label: string;
+  enabled: boolean;
+  link: string;
+  hidden?: boolean;
+};
+
+const defaultPlatforms: PlatformEntry[] = [
+  { id: "github", label: "GitHub", enabled: true, link: "" },
+  { id: "linkedin", label: "LinkedIn", enabled: true, link: "" },
+  { id: "indeed", label: "Indeed", enabled: true, link: "" },
+  { id: "rozee", label: "Rozee", enabled: false, link: "" },
+];
+const PLATFORM_STORAGE_KEY = "cvforge-platform-connections";
+
+function toPlatformId(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
 export function JobsWorkspace() {
   const token = useAppSelector((state) => state.auth.token);
   const user = useAppSelector((state) => state.auth.user);
   const cvs = useAppSelector((state) => state.cv.items);
-  const latestCv = cvs[0] ?? null;
+  const selectedCvId = useAppSelector((state) => state.cv.selectedCvId);
+  const activeCv = useMemo(
+    () => cvs.find((cv) => cv.id === selectedCvId) ?? cvs[0] ?? null,
+    [cvs, selectedCvId],
+  );
+
   const [workflow, setWorkflow] = useState<AgentWorkflowResult | null>(null);
-  const [platforms, setPlatforms] = useState({
-    linkedin: true,
-    github: true,
-    rozee: false,
-    indeed: true,
+  const [platforms, setPlatforms] = useState<PlatformEntry[]>(() => {
+    if (typeof window === "undefined") {
+      return defaultPlatforms;
+    }
+
+    try {
+      const stored = window.localStorage.getItem(PLATFORM_STORAGE_KEY);
+      if (!stored) {
+        return defaultPlatforms;
+      }
+
+      const parsed = JSON.parse(stored) as PlatformEntry[];
+      return Array.isArray(parsed) && parsed.length ? parsed : defaultPlatforms;
+    } catch {
+      return defaultPlatforms;
+    }
   });
-  const [links, setLinks] = useState({
-    linkedin: "",
-    github: "",
-    rozee: "",
-    indeed: "",
-  });
+  const [customPlatformName, setCustomPlatformName] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const selectedPlatforms = useMemo(
-    () => Object.entries(platforms).filter(([, enabled]) => enabled).map(([name]) => name),
+    () => platforms.filter((platform) => platform.enabled && !platform.hidden).map((platform) => platform.label),
     [platforms],
   );
+  const visiblePlatforms = useMemo(() => platforms.filter((platform) => !platform.hidden), [platforms]);
+  const hiddenPlatforms = useMemo(() => platforms.filter((platform) => platform.hidden), [platforms]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(PLATFORM_STORAGE_KEY, JSON.stringify(platforms));
+    } catch {}
+  }, [platforms]);
+
+  function updatePlatform(id: string, updates: Partial<PlatformEntry>) {
+    setPlatforms((current) =>
+      current.map((platform) => (platform.id === id ? { ...platform, ...updates } : platform)),
+    );
+  }
+
+  function addCustomPlatform() {
+    const name = customPlatformName.trim();
+    if (!name) {
+      toast.error("Enter a platform name first");
+      return;
+    }
+
+    const id = toPlatformId(name);
+    if (platforms.some((platform) => platform.id === id)) {
+      toast.error("That platform is already added");
+      return;
+    }
+
+    setPlatforms((current) => [
+      ...current,
+      {
+        id,
+        label: name,
+        enabled: true,
+        link: "",
+      },
+    ]);
+    setCustomPlatformName("");
+    toast.success(`${name} added`);
+  }
+
+  function hidePlatform(id: string) {
+    setPlatforms((current) =>
+      current.map((platform) => (platform.id === id ? { ...platform, hidden: true, enabled: false } : platform)),
+    );
+    toast.success("Platform hidden");
+  }
+
+  function unhidePlatform(id: string) {
+    setPlatforms((current) =>
+      current.map((platform) => (platform.id === id ? { ...platform, hidden: false } : platform)),
+    );
+    toast.success("Platform restored");
+  }
 
   function runWorkflow() {
-    if (!token || !user || !latestCv?.raw_text) {
+    if (!token || !user || !activeCv?.raw_text) {
       toast.error("Upload and analyze a CV first");
       return;
     }
@@ -42,7 +128,9 @@ export function JobsWorkspace() {
       try {
         const result = await api.orchestrate(token, {
           user_id: user.id,
-          cv_text: `${latestCv.raw_text}\nPlatforms: ${selectedPlatforms.join(", ")}\nProfiles: ${JSON.stringify(links)}`,
+          cv_text: `${activeCv.raw_text}\nPlatforms: ${selectedPlatforms.join(", ")}\nProfiles: ${JSON.stringify(
+            Object.fromEntries(platforms.map((platform) => [platform.id, platform.link])),
+          )}`,
         });
         setWorkflow(result);
         toast.success("Job workflow generated");
@@ -57,24 +145,57 @@ export function JobsWorkspace() {
       <SectionCard title="Platform Connections & Auto Apply" description="Connect public profiles, select target platforms, then trigger the backend workflow.">
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="space-y-4">
-            {(["linkedin", "github", "rozee", "indeed"] as const).map((platform) => (
-              <div key={platform} className="rounded-2xl border border-black/10 bg-stone-50 p-4">
-                <label className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold capitalize text-stone-900">{platform}</span>
-                  <input
-                    type="checkbox"
-                    checked={platforms[platform]}
-                    onChange={(event) => setPlatforms((prev) => ({ ...prev, [platform]: event.target.checked }))}
-                  />
-                </label>
+            <div className="rounded-[24px] border border-black/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,245,240,0.92))] p-4">
+              <p className="text-sm font-semibold text-stone-900">Add another platform</p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                 <input
-                  value={links[platform]}
-                  onChange={(event) => setLinks((prev) => ({ ...prev, [platform]: event.target.value }))}
-                  placeholder={`Paste your ${platform} profile URL or username`}
-                  className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  value={customPlatformName}
+                  onChange={(event) => setCustomPlatformName(event.target.value)}
+                  placeholder="Type a platform name"
+                  className="min-w-0 flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                 />
+                <button
+                  onClick={addCustomPlatform}
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-semibold text-white"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add platform
+                </button>
               </div>
-            ))}
+            </div>
+
+            <div className="space-y-4">
+              {visiblePlatforms.map((platform) => (
+                <div key={platform.id} className="rounded-2xl border border-black/10 bg-stone-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <label className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-stone-900">{platform.label}</span>
+                      <input
+                        type="checkbox"
+                        checked={platform.enabled}
+                        onChange={(event) => updatePlatform(platform.id, { enabled: event.target.checked })}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => hidePlatform(platform.id)}
+                      className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-stone-600 transition hover:text-stone-950"
+                    >
+                      <EyeOff className="h-3.5 w-3.5" />
+                      Hide
+                    </button>
+                  </div>
+                  <input
+                    value={platform.link}
+                    onChange={(event) => updatePlatform(platform.id, { link: event.target.value })}
+                    placeholder={`Paste your ${platform.label} profile URL or username`}
+                    className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+
             <button
               onClick={runWorkflow}
               disabled={isPending}
@@ -135,6 +256,24 @@ export function JobsWorkspace() {
                 <p className="text-sm text-stone-500">Run the workflow to see generated jobs and application drafts.</p>
               )}
             </SectionCard>
+
+            {hiddenPlatforms.length ? (
+              <div className="rounded-[24px] border border-black/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,244,241,0.92))] p-4">
+                <p className="text-sm font-semibold text-stone-900">Hidden platforms</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {hiddenPlatforms.map((platform) => (
+                    <button
+                      key={platform.id}
+                      type="button"
+                      onClick={() => unhidePlatform(platform.id)}
+                      className="rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-stone-700 transition hover:text-stone-950"
+                    >
+                      Unhide {platform.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </SectionCard>

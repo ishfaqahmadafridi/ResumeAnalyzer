@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Mic, Send } from "lucide-react";
 import { SectionCard } from "@/components/section-card";
 import { useAppSelector } from "@/store";
@@ -18,22 +18,32 @@ const defaultPrompts = [
 ];
 
 export function InterviewWorkspace() {
+  const cvs = useAppSelector((state) => state.cv.items);
+  const selectedCvId = useAppSelector((state) => state.cv.selectedCvId);
   const latestAnalysis = useAppSelector((state) => state.cv.latestRoleAnalysis);
   const activeInterviewRole = useUIStore((state) => state.activeInterviewRole);
   const setActiveInterviewRole = useUIStore((state) => state.setActiveInterviewRole);
   const interviewDraft = useUIStore((state) => state.interviewDraft);
   const setInterviewDraft = useUIStore((state) => state.setInterviewDraft);
+
+  const activeCv = useMemo(
+    () => cvs.find((cv) => cv.id === selectedCvId) ?? cvs[0] ?? null,
+    [cvs, selectedCvId],
+  );
+  const savedRole = latestAnalysis?.analysis?.role ?? activeCv?.recommended_roles?.[0]?.title ?? null;
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "I’ll act as your interviewer. Pick a role, then answer naturally and I’ll keep the session moving.",
+      text: "Interview practice for your selected role starts here.",
     },
   ]);
 
-  const roleOptions = useMemo(
-    () => latestAnalysis?.recommended_roles?.map((item) => item.role) ?? ["Frontend Developer", "Backend Developer", "AI Engineer"],
-    [latestAnalysis],
-  );
+  useEffect(() => {
+    if (savedRole && savedRole !== activeInterviewRole) {
+      setActiveInterviewRole(savedRole);
+    }
+  }, [activeInterviewRole, savedRole, setActiveInterviewRole]);
 
   function sendMessage() {
     if (!interviewDraft.trim()) return;
@@ -48,60 +58,54 @@ export function InterviewWorkspace() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionCard title="Interview Practice" description="Role-aware mock interview space wired to your latest CV analysis.">
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <div className="space-y-4">
+        <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <p className="text-sm font-semibold text-stone-900">Role</p>
-              <div className="mt-3 space-y-2">
-                {roleOptions.map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => setActiveInterviewRole(role)}
-                    className={`w-full rounded-2xl border px-4 py-3 text-left text-sm ${activeInterviewRole === role ? "border-emerald-700 bg-emerald-50" : "border-black/10 bg-stone-50"}`}
-                  >
-                    {role}
-                  </button>
-                ))}
-              </div>
+              <p className="text-base font-semibold text-stone-950">Role</p>
+              <p className="mt-2 text-sm font-medium text-stone-700">{activeInterviewRole || "No role selected yet"}</p>
             </div>
-            <div className="rounded-2xl bg-stone-50 p-4">
-              <p className="text-sm font-semibold text-stone-900">CV context loaded</p>
-              <p className="mt-2 text-sm text-stone-600">
+            <div>
+              <p className="text-base font-semibold text-stone-950">CV context loaded</p>
+              <p className="mt-2 text-sm leading-6 text-stone-600">
                 {latestAnalysis?.analysis
-                  ? `Current strengths: ${latestAnalysis.analysis.matched_skills.slice(0, 4).join(", ") || "not available"}`
+                  ? `The chatbot will interview you for your "${activeInterviewRole}" role. Current strengths: ${latestAnalysis.analysis.matched_skills.slice(0, 4).join(", ") || "not available"}`
                   : "Upload and analyze a CV so the interview prompt can be grounded in your real profile."}
               </p>
             </div>
           </div>
 
-          <div className="rounded-[26px] border border-black/10 bg-stone-950 p-4 text-stone-50">
+          <div className="rounded-[34px] border border-black/10 bg-[#0f0d0d] p-5 text-stone-50 shadow-[0_22px_45px_rgba(17,17,17,0.12)]">
             <div className="space-y-3">
               {messages.map((message, index) => (
                 <div
                   key={`${message.role}-${index}`}
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.role === "assistant" ? "bg-white/10 text-stone-100" : "ml-auto bg-emerald-600 text-emerald-50"}`}
+                  className={`max-w-[88%] rounded-[20px] px-4 py-3 text-sm leading-6 ${
+                    message.role === "assistant" ? "bg-white/10 text-stone-100" : "ml-auto bg-emerald-600 text-emerald-50"
+                  }`}
                 >
                   {message.text}
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex items-end gap-3">
-              <textarea
-                rows={3}
-                value={interviewDraft}
-                onChange={(event) => setInterviewDraft(event.target.value)}
-                placeholder="Type your answer here..."
-                className="min-h-[88px] flex-1 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm text-white outline-none"
-              />
-              <div className="flex flex-col gap-2">
-                <button className="rounded-2xl border border-white/10 bg-white/10 p-3" type="button" aria-label="Voice input placeholder">
-                  <Mic className="h-5 w-5" />
-                </button>
-                <button className="rounded-2xl bg-amber-500 p-3 text-stone-950" onClick={sendMessage} type="button" aria-label="Send answer">
-                  <Send className="h-5 w-5" />
-                </button>
+            <div className="mt-4 rounded-[24px] border border-white/10 bg-white/8 p-3">
+              <div className="flex items-end gap-3">
+                <textarea
+                  rows={3}
+                  value={interviewDraft}
+                  onChange={(event) => setInterviewDraft(event.target.value)}
+                  placeholder="Type your answer here..."
+                  className="min-h-[108px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white outline-none"
+                />
+                <div className="flex items-center gap-2 pb-1">
+                  <button className="rounded-[16px] border border-white/10 bg-white/10 p-2.5" type="button" aria-label="Voice input placeholder">
+                    <Mic className="h-5 w-5" />
+                  </button>
+                  <button className="rounded-[16px] bg-amber-500 p-2.5 text-stone-950" onClick={sendMessage} type="button" aria-label="Send answer">
+                    <Send className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
