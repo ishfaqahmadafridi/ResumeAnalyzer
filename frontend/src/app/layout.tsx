@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Providers } from "@/components/providers";
-import { AuthGate } from "@/components/auth-gate";
+import { Providers } from "@/store/providers";
+import { AuthGate } from "@/store/auth-gate";
 import "./globals.css";
 
 export const metadata: Metadata = {

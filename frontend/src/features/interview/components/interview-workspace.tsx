@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Mic, Send } from "lucide-react";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { useAppSelector } from "@/store";
 import { useUIStore } from "@/store/ui-store";
 

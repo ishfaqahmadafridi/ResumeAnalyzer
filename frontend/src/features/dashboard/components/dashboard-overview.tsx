@@ -20,7 +20,7 @@ import {
 import { QUICK_ACTIONS } from "@/lib/constants";
 import { parseJson } from "@/lib/utils";
 import { useAppSelector } from "@/store";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { CVRoleAnalysis } from "@/types";
 

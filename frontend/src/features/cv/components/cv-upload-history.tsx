@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Clock3, FileText, ScanText } from "lucide-react";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { api } from "@/lib/api";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectCv, setCVs } from "@/store/cv-slice";
