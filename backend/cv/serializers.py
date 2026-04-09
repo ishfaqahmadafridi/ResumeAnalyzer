@@ -12,9 +12,19 @@ class RecommendedRoleSerializer(serializers.ModelSerializer):
 
 
 class VerificationResultSerializer(serializers.ModelSerializer):
+    details = serializers.SerializerMethodField()
+
     class Meta:
         model = VerificationResult
         fields = ["id", "is_verified", "details", "created_at"]
+
+    def get_details(self, obj):
+        details = obj.details
+        if isinstance(details, dict):
+            return str(details.get("message", ""))
+        if isinstance(details, str):
+            return details
+        return ""
 
 
 class AnalysisResultSerializer(serializers.ModelSerializer):

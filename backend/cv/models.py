@@ -38,5 +38,5 @@ class VerificationResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cv = models.ForeignKey(CV, on_delete=models.CASCADE, related_name="verification_results")
     is_verified = models.BooleanField(default=False)
-    details = models.TextField(default="")
+    details = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
