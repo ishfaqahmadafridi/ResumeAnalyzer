@@ -46,5 +46,12 @@ def application_agent(state: dict) -> dict:
 
 def notification_agent(state: dict) -> dict:
     application_count = len(state.get("applications", []))
-    state["notifications"] = [f"Workflow completed with {application_count} prepared application(s)."]
+    jobs = state.get("jobs", [])
+    
+    if application_count > 0:
+        names = ", ".join([job.get("company", "Unknown") for job in jobs])
+        state["notifications"] = [f"Successfully completed {application_count} job application(s) for your role at: {names}."]
+    else:
+        state["notifications"] = ["No job applications were submitted during this workflow."]
+        
     return state

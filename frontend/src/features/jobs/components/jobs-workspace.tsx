@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { SectionCard } from "@/components/section-card";
 import { useAppSelector } from "@/store";
+import { useNotificationStore } from "@/store/notification-store";
 import type { AgentWorkflowResult } from "@/types";
 
 type PlatformEntry = {
@@ -58,6 +59,7 @@ export function JobsWorkspace() {
   });
   const [customPlatformName, setCustomPlatformName] = useState("");
   const [isPending, startTransition] = useTransition();
+  const addNotification = useNotificationStore((state) => state.addNotification);
 
   const selectedPlatforms = useMemo(
     () => platforms.filter((platform) => platform.enabled && !platform.hidden).map((platform) => platform.label),
@@ -134,6 +136,20 @@ export function JobsWorkspace() {
         });
         setWorkflow(result);
         toast.success("Job workflow generated");
+        
+        // Add a notification when the agent finds job recommendations
+        addNotification({
+          title: "New Job Matches Found",
+          message: `Your agent successfully found job recommendations across ${selectedPlatforms.length} platforms. Expand this message to see the details and links to apply. Are you ready to apply?`,
+          threadId: result.thread_id,
+          actionRequired: "approval",
+          jobs: result.jobs?.map((job: any) => ({
+            title: job.title || "Unknown Role",
+            company: job.company || "Unknown Company",
+            location: job.location || "Remote",
+            url: job.url || job.source || "#",
+          }))
+        });
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Workflow failed");
       }

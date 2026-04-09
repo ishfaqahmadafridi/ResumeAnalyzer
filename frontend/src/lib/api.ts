@@ -84,7 +84,7 @@ export const api = {
       json: payload,
     });
   },
-  orchestrate(token: string, payload: { user_id: string; cv_text: string }) {
+  orchestrate(token: string, payload: { user_id: string; cv_text: string; action?: string; action_data?: any; thread_id?: string }) {
     return request<AgentWorkflowResult>("/core/orchestrate/", {
       method: "POST",
       token,
