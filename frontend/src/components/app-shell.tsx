@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BriefcaseBusiness, FileText, LayoutDashboard, LogOut, MessageSquareQuote } from "lucide-react";
+import { BriefcaseBusiness, FileClock, FileText, LayoutDashboard, LogOut, MessageSquareQuote } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -13,6 +13,7 @@ import { useUIStore } from "@/store/ui-store";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/cv", label: "CV Analysis", icon: FileText },
+  { href: "/dashboard/cv-history", label: "CV History", icon: FileClock },
   { href: "/dashboard/interview", label: "Interview", icon: MessageSquareQuote },
   { href: "/dashboard/jobs", label: "Auto Apply", icon: BriefcaseBusiness },
 ];

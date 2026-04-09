@@ -79,6 +79,7 @@ export function CVWorkspace() {
     () => cvs.find((item) => item.id === selectedCvId) ?? cvs[0] ?? null,
     [cvs, selectedCvId],
   );
+  const recentCvs = useMemo(() => cvs.slice(0, 4), [cvs]);
 
   useEffect(() => {
     if (!token) return;
@@ -195,8 +196,8 @@ export function CVWorkspace() {
           <div className="rounded-[24px] border border-black/10 bg-white p-5">
             <p className="text-sm font-semibold text-stone-900">Saved CV versions</p>
             <div className="mt-4 space-y-3">
-              {cvs.length ? (
-                cvs.map((cv) => (
+              {recentCvs.length ? (
+                recentCvs.map((cv) => (
                   <button
                     key={cv.id}
                     onClick={() => dispatch(selectCv(cv.id))}
@@ -212,6 +213,11 @@ export function CVWorkspace() {
                 <p className="text-sm text-stone-500">No uploaded CVs yet.</p>
               )}
             </div>
+            {cvs.length > 4 ? (
+              <p className="mt-4 text-xs leading-5 text-stone-500">
+                Showing the latest 4 CV versions here. Older uploads stay available in <span className="font-semibold">CV History</span>.
+              </p>
+            ) : null}
           </div>
         </div>
       </SectionCard>
