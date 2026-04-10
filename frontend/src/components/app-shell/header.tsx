@@ -1,5 +1,5 @@
-import { HeaderTitle } from "./header-title";
-import { HeaderActions } from "./header-actions";
+import { HeaderTitle } from "@/app/dashboard/_layout/app-shell/header-title";
+import { HeaderActions } from "@/app/dashboard/_layout/app-shell/header-actions";
 
 export function Header() {
   return (

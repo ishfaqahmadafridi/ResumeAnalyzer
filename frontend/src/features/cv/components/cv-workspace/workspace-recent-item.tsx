@@ -11,7 +11,7 @@ export function WorkspaceRecentItem({ cv, index, isActive, onSelectCv }: Props) 
   return (
     <button
       onClick={() => onSelectCv(cv.id)}
-      className={`relative w-full overflow-hidden rounded-[24px] border px-4 py-4 text-left transition ${
+      className={`relative w-full overflow-hidden rounded-[18px] border px-3.5 py-3 text-left transition ${
         isActive
           ? "border-emerald-500 bg-[linear-gradient(135deg,rgba(232,250,239,1),rgba(240,255,246,0.96))] shadow-[0_14px_28px_rgba(20,83,45,0.12)]"
           : "border-black/8 bg-white/92 hover:border-sky-200 hover:bg-stone-50 hover:shadow-[0_12px_26px_rgba(31,31,28,0.06)]"
@@ -20,7 +20,7 @@ export function WorkspaceRecentItem({ cv, index, isActive, onSelectCv }: Props) 
       <div className="absolute inset-y-0 left-0 w-1 rounded-full bg-[linear-gradient(180deg,#60a5fa,#10b981)] opacity-75" />
       <div className="flex items-center justify-between gap-3 pl-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-100 text-xs font-semibold text-stone-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 text-xs font-semibold text-stone-600">
             0{index + 1}
           </div>
           <div>
@@ -34,7 +34,7 @@ export function WorkspaceRecentItem({ cv, index, isActive, onSelectCv }: Props) 
           </span>
         ) : null}
       </div>
-      <p className="mt-3 line-clamp-2 pl-2 text-xs leading-5 text-stone-600">
+      <p className="mt-2 line-clamp-1 pl-2 text-xs leading-5 text-stone-600">
         {cv.raw_text?.slice(0, 150) || "No extracted text preview"}
       </p>
     </button>

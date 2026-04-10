@@ -12,7 +12,7 @@ export function AppShell({ children }: WrapperProps) {
       <MobileNavTrigger />
       <MobileOverlay />
       
-      <div className="mx-auto flex min-h-screen w-full max-w-[430px] gap-6 px-4 py-6 lg:px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1440px] gap-6 px-4 py-6 lg:px-6 xl:px-8">
         <Sidebar />
         
         <main className="min-w-0 flex-1 xl:pl-0">
