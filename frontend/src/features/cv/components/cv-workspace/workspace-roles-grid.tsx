@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { WorkspaceRolesRecommended } from "./workspace-roles-recommended";
 import { WorkspaceFitBreakdown } from "./workspace-fit-breakdown";
 import type { UseCVWorkspaceResult } from "@/features/types/cv/workspace";

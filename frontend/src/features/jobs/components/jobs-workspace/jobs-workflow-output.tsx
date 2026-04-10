@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { JobsWorkflowEmpty } from "./jobs-workflow-empty";
 import { JobsWorkflowContent } from "./jobs-workflow-content";
 import type { AgentWorkflowResult } from "@/types";

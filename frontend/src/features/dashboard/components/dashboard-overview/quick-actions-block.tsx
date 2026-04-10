@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { QUICK_ACTIONS } from "@/lib/constants";
 
 interface Props {

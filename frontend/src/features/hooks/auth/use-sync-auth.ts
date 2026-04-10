@@ -7,15 +7,10 @@ import { parseJson } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { clearAuth, setAuth } from "@/store/auth-slice";
 import type { AuthResponse } from "@/types";
-import type { WrapperProps } from "@/types/components";
 
 const PUBLIC_ROUTES = new Set(["/", "/auth/login", "/auth/register"]);
 
-<<<<<<<< HEAD:frontend/src/features/hooks/auth/use-sync-auth.ts
 export function useSyncAuth() {
-========
-export function AuthGate({ children }: WrapperProps) {
->>>>>>>> origin/main:frontend/src/store/auth-gate.tsx
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();

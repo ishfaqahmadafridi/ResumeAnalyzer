@@ -1,5 +1,5 @@
 import { PolarAngleAxis, PolarGrid, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 
 export function GaugeTopBlockers({ missingCount }: { missingCount: number }) {
