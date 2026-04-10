@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { EyeOff, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { useAppSelector } from "@/store";
 import { useNotificationStore } from "@/store/notification-store";
 import type { AgentWorkflowResult } from "@/types";

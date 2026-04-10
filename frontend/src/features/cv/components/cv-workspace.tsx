@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectCv, selectRole, setCVs, setRoleAnalysis, upsertCV } from "@/store/cv-slice";
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { CVAnalysisResultsStrengths } from "./CVAnalysisResults/CVAnalysisResultsStrengths";
 import { BadgeCheck, FileText, Rocket, TrendingUp, Upload } from "lucide-react";
 import { formatCvCreatedAt, getUploadGuidance, roleAnalysisFromStored } from "../utils/cv-workspace";
