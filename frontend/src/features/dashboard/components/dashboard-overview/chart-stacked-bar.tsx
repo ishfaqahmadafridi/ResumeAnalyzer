@@ -7,7 +7,7 @@ export function ChartStackedBar({ stackedData }: { stackedData: StackedMonthlyTy
   const hydrated = useHydrated();
   return (
     <SectionCard title="Platform Activity Mix" description="How your CV work, interview prep, and applications stack up across the year.">
-      <div className="h-82.5">
+      <div className="h-[330px]">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stackedData}>

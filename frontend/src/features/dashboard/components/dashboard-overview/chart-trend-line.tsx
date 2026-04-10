@@ -7,7 +7,7 @@ export function ChartTrendLine({ trendData }: { trendData: ActivityTrendType[] }
   const hydrated = useHydrated();
   return (
     <SectionCard title="CV Momentum Trend" description="A board-style trend of your score against a stronger target path.">
-      <div className="h-82.5">
+      <div className="h-[330px]">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={trendData}>

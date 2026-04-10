@@ -57,13 +57,13 @@ export default function NotificationsPage() {
         action_data: answer ? { answer } : {},
       });
 
-      removeNotification(notificationId);
-
       let newJobs: any[] = [];
-      const n = notifications.find((n: any) => n.id === notificationId);
-      if (n && n.jobs) {
-        newJobs = n.jobs;
+      const notification = notifications.find((n: any) => n.id === notificationId);
+      if (notification && notification.jobs) {
+        newJobs = notification.jobs;
       }
+
+      removeNotification(notificationId);
 
       if ((res as any).action_data?.needs_info) {
         addNotification({

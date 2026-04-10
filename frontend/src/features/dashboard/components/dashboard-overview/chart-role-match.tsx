@@ -7,7 +7,7 @@ export function ChartRoleMatch({ matchData }: { matchData: MatchBreakdownType[] 
   const hydrated = useHydrated();
   return (
     <SectionCard title="Role Match Comparison" description="Current role recommendations and match percentages.">
-      <div className="h-65">
+      <div className="h-[260px]">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={matchData} barCategoryGap={26}>
