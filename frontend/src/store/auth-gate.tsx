@@ -11,11 +11,7 @@ import type { WrapperProps } from "@/types/components";
 
 const PUBLIC_ROUTES = new Set(["/", "/auth/login", "/auth/register"]);
 
-<<<<<<<< HEAD:frontend/src/features/hooks/auth/use-sync-auth.ts
-export function useSyncAuth() {
-========
 export function AuthGate({ children }: WrapperProps) {
->>>>>>>> origin/main:frontend/src/store/auth-gate.tsx
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();
@@ -46,4 +42,6 @@ export function AuthGate({ children }: WrapperProps) {
       router.replace("/auth/login");
     }
   }, [dispatch, pathname, router, token]);
+
+  return <>{children}</>;
 }

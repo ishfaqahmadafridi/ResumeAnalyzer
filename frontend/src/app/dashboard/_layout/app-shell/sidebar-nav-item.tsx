@@ -16,7 +16,7 @@ export function SidebarNavItem({ item }: { item: NavItemType }) {
       className={cn(
         "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition",
         active
-          ? "bg-emerald-900 text-emerald-50"
+          ? "bg-emerald-700/90 text-emerald-50 shadow-sm"
           : "text-stone-700 hover:bg-stone-900/5 hover:text-stone-950",
         !sidebarOpen && "xl:h-12 xl:justify-center xl:px-0",
       )}

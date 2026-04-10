@@ -9,7 +9,7 @@ interface Props {
 
 export function WorkspaceUploadDropzone({ selectedFile, setSelectedFile, setUploadIssue }: Props) {
   return (
-    <label className="mt-5 block cursor-pointer rounded-[26px] border border-dashed border-sky-300 bg-[linear-gradient(180deg,rgba(245,250,255,0.95),rgba(255,255,255,0.92))] px-5 py-6 shadow-[0_16px_34px_rgba(59,130,246,0.08)] transition hover:border-sky-400 hover:shadow-[0_18px_38px_rgba(59,130,246,0.12)]">
+    <label className="mt-3.5 block cursor-pointer rounded-[22px] border border-dashed border-sky-300 bg-[linear-gradient(180deg,rgba(245,250,255,0.95),rgba(255,255,255,0.92))] px-4 py-4 shadow-[0_12px_26px_rgba(59,130,246,0.08)] transition hover:border-sky-400 hover:shadow-[0_14px_30px_rgba(59,130,246,0.12)]">
       <input
         type="file"
         accept=".pdf,.docx,.txt"
@@ -19,16 +19,16 @@ export function WorkspaceUploadDropzone({ selectedFile, setSelectedFile, setUplo
         }}
         className="hidden"
       />
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex min-w-0 flex-col items-center gap-3">
-          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-            <FileText className="h-5 w-5" />
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex min-w-0 flex-col items-center gap-2.5">
+          <div className="rounded-xl bg-sky-100 p-2.5 text-sky-700">
+            <FileText className="h-4.5 w-4.5" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-stone-900">{selectedFile ? selectedFile.name : "Choose your CV file"}</p>
           </div>
         </div>
-        <span className="inline-flex min-w-[132px] items-center justify-center rounded-full bg-stone-950 px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white">
+        <span className="inline-flex min-w-[122px] items-center justify-center rounded-full bg-stone-950 px-4 py-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
           Browse file
         </span>
       </div>

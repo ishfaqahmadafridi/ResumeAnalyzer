@@ -15,7 +15,6 @@ export function SidebarHeader() {
       {sidebarOpen ? (
         <div className="min-w-0 pt-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-stone-500">CV Analysis Hub</p>
-          <p className="mt-2 text-sm font-medium text-stone-700">Upload, review, and improve every CV version.</p>
         </div>
       ) : (
         <div className="hidden xl:block" />
