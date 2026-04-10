@@ -1,5 +1,5 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { SectionCard } from "@/components/ui/section-card";
+import { SectionCard } from "@/components/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { ActivityTrendType } from "@/features/types/dashboard";
 

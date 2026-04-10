@@ -1,12 +1,6 @@
 import { parseJson } from "@/lib/utils";
 import type { CVRoleAnalysis } from "@/types";
-
-export type UploadGuidance = {
-  title: string;
-  summary: string;
-  steps: string[];
-  tip: string;
-};
+import type { UploadGuidanceType } from "@/features/types/cv/workspace";
 
 export function roleAnalysisFromStored(value: string | null | undefined, score = 0) {
   return parseJson<CVRoleAnalysis | null>(value, null) ?? {
@@ -31,7 +25,7 @@ export function formatCvCreatedAt(value: string) {
   }).format(date);
 }
 
-export function getUploadGuidance(message: string, fileName?: string | null): UploadGuidance {
+export function getUploadGuidance(message: string, fileName?: string | null): UploadGuidanceType {
   const lowerMessage = message.toLowerCase();
   const lowerFileName = (fileName ?? "").toLowerCase();
 

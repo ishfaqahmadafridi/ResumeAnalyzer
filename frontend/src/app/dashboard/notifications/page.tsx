@@ -57,21 +57,27 @@ export default function NotificationsPage() {
         action_data: answer ? { answer } : {},
       });
 
+      let newJobs: any[] = [];
+      const notification = notifications.find((n: any) => n.id === notificationId);
+      if (notification && notification.jobs) {
+        newJobs = notification.jobs;
+      }
+
       removeNotification(notificationId);
 
-      if (res.action_data?.needs_info) {
+      if ((res as any).action_data?.needs_info) {
         addNotification({
           title: "Setup Incomplete: More Details Required",
           message: res.notifications?.[res.notifications.length - 1] || "The exact questions were not returned from the agent. Please provide input.",
           threadId: threadId,
           actionRequired: "input",
-          jobs: n.jobs
+          jobs: newJobs
         });
       } else {
         addNotification({
           title: "Application Complete",
           message: res.notifications?.[0] || "We successfully completed the background job applications for you.",
-          jobs: n.jobs
+          jobs: newJobs
         });
         toast.success("Job applied successfully");
       }
