@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { WorkspaceHeaderBanner } from "./workspace-header-banner";
 import { WorkspaceWorkflowGuide } from "./workspace-workflow-guide";
 import { WorkspaceUploadGrid } from "./workspace-upload-grid";

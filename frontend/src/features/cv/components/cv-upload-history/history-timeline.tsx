@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { TimelineGrid } from "./timeline-grid";
 import { TimelineEmptyState } from "./timeline-empty-state";
 import type { CVHistoryItemType } from "@/features/types/cv/history";

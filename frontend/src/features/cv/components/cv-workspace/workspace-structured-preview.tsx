@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { WorkspaceStructuredDetails } from "./workspace-structured-details";
 import { WorkspaceStructuredSkills } from "./workspace-structured-skills";
 import type { UseCVWorkspaceResult } from "@/features/types/cv/workspace";

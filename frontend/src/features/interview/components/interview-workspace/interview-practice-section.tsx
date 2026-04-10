@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/section-card";
+import { SectionCard } from "@/components/ui/section-card";
 import { InterviewPracticeContent } from "./interview-practice-content";
 import type { UseInterviewWorkspaceResult } from "@/features/types/interview/workspace";
 
