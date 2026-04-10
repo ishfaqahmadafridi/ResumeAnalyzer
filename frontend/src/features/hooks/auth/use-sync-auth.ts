@@ -10,7 +10,7 @@ import type { AuthResponse } from "@/types";
 
 const PUBLIC_ROUTES = new Set(["/", "/auth/login", "/auth/register"]);
 
-export function AuthGate({ children }: { children: React.ReactNode }) {
+export function useSyncAuth() {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();
@@ -41,6 +41,4 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       router.replace("/auth/login");
     }
   }, [dispatch, pathname, router, token]);
-
-  return children;
 }

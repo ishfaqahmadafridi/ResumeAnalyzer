@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Providers } from "@/components/providers";
-import { AuthGate } from "@/components/auth-gate";
+import { RootBody } from "./_layout/root-body";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,13 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <Providers>
-          <AuthGate>{children}</AuthGate>
-        </Providers>
-      </body>
-    </html>
-  );
+  return <RootBody>{children}</RootBody>;
 }

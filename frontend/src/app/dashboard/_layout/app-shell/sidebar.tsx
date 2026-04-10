@@ -18,30 +18,16 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { clearAuth } from "@/store/auth-slice";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { useUIStore } from "@/store/ui-store";
-
-export const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/cv", label: "CV Analysis", icon: FileText },
-  { href: "/dashboard/cv-history", label: "CV History", icon: FileClock },
-  { href: "/dashboard/interview", label: "Interview", icon: MessageSquareQuote },
-  { href: "/dashboard/jobs", label: "Auto Apply", icon: BriefcaseBusiness },
-];
+import { useLogout } from "@/features/hooks/auth/use-logout";
+import { navItems } from "@/features/utils/dashboard/nav-items";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const dispatch = useAppDispatch();
+  const logout = useLogout();
   const hydrated = useHydrated();
   const user = useAppSelector((state: any) => state.auth.user);
   const sidebarOpen = useUIStore((state: any) => state.sidebarOpen);
   const setSidebarOpen = useUIStore((state: any) => state.setSidebarOpen);
-
-  function logout() {
-    localStorage.removeItem("cvforge-auth");
-    dispatch(clearAuth());
-    toast.success("Signed out");
-    router.push("/auth/login");
-  }
 
   return (
     <aside
@@ -88,7 +74,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition",
                 active
-                  ? "bg-emerald-900 text-emerald-50"
+                  ? "bg-emerald-100 text-emerald-900"
                   : "text-stone-700 hover:bg-stone-900/5 hover:text-stone-950",
                 !sidebarOpen && "xl:h-12 xl:justify-center xl:px-0",
               )}
