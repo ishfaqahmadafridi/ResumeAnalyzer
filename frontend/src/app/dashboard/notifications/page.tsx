@@ -59,19 +59,25 @@ export default function NotificationsPage() {
 
       removeNotification(notificationId);
 
-      if (res.action_data?.needs_info) {
+      let newJobs: any[] = [];
+      const n = notifications.find((n: any) => n.id === notificationId);
+      if (n && n.jobs) {
+        newJobs = n.jobs;
+      }
+
+      if ((res as any).action_data?.needs_info) {
         addNotification({
           title: "Setup Incomplete: More Details Required",
           message: res.notifications?.[res.notifications.length - 1] || "The exact questions were not returned from the agent. Please provide input.",
           threadId: threadId,
           actionRequired: "input",
-          jobs: n.jobs
+          jobs: newJobs
         });
       } else {
         addNotification({
           title: "Application Complete",
           message: res.notifications?.[0] || "We successfully completed the background job applications for you.",
-          jobs: n.jobs
+          jobs: newJobs
         });
         toast.success("Job applied successfully");
       }

@@ -1,5 +1,5 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { SectionCard } from "@/components/ui/section-card";
+import { SectionCard } from "@/components/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { ActivityTrendType } from "@/features/types/dashboard";
 
@@ -7,7 +7,7 @@ export function ChartTrendLine({ trendData }: { trendData: ActivityTrendType[] }
   const hydrated = useHydrated();
   return (
     <SectionCard title="CV Momentum Trend" description="A board-style trend of your score against a stronger target path.">
-      <div className="h-[330px]">
+      <div className="h-82.5">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={trendData}>

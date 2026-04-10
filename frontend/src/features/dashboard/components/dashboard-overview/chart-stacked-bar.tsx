@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { SectionCard } from "@/components/ui/section-card";
+import { SectionCard } from "@/components/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { StackedMonthlyType } from "@/features/types/dashboard";
 
@@ -7,7 +7,7 @@ export function ChartStackedBar({ stackedData }: { stackedData: StackedMonthlyTy
   const hydrated = useHydrated();
   return (
     <SectionCard title="Platform Activity Mix" description="How your CV work, interview prep, and applications stack up across the year.">
-      <div className="h-[330px]">
+      <div className="h-82.5">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stackedData}>

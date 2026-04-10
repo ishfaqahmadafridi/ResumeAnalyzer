@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { SectionCard } from "@/components/ui/section-card";
+import { SectionCard } from "@/components/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { ImprovementDataType } from "@/features/types/dashboard";
 

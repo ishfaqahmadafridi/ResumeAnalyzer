@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { SectionCard } from "@/components/ui/section-card";
+import { SectionCard } from "@/components/section-card";
 import { useHydrated } from "@/hooks/use-hydrated";
 import type { MatchBreakdownType } from "@/features/types/dashboard";
 
@@ -7,7 +7,7 @@ export function ChartRoleMatch({ matchData }: { matchData: MatchBreakdownType[] 
   const hydrated = useHydrated();
   return (
     <SectionCard title="Role Match Comparison" description="Current role recommendations and match percentages.">
-      <div className="h-[260px]">
+      <div className="h-65">
         {hydrated ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={matchData} barCategoryGap={26}>
