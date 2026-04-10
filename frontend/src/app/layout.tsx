@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { RootBody } from "./_layout/root-body";
 import "./globals.css";
 

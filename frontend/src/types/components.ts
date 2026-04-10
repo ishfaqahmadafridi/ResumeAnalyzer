@@ -1,6 +1,3 @@
-export interface WrapperProps {
-  children: React.ReactNode;
-}
 import type { ElementType, ReactNode } from "react";
 
 export interface NavItemType {

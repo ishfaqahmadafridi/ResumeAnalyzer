@@ -1,5 +1,3 @@
-"use client";
-
 import { HeaderTitle } from "./header-title";
 import { HeaderActions } from "./header-actions";
 

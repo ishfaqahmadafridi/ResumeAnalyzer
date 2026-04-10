@@ -1,11 +1,9 @@
-"use client";
-
 import { PanelLeft } from "lucide-react";
 import { useUIStore } from "@/store/ui-store";
 
 export function MobileNavTrigger() {
-  const sidebarOpen = useUIStore((state: any) => state.sidebarOpen);
-  const setSidebarOpen = useUIStore((state: any) => state.setSidebarOpen);
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUIStore((state) => state.setSidebarOpen);
 
   return (
     <button
