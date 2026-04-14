@@ -56,6 +56,7 @@ export type CVStructuredData = {
   education?: string[];
   projects?: string[];
   skills?: string[];
+  languages?: string[];
   links?: string[];
 };
 

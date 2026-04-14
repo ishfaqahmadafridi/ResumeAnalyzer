@@ -3,6 +3,12 @@ from __future__ import annotations
 from .schemas import StructuredCV
 
 
+SKILL_HYGIENE_RULES = """- In structured_data.skills include only professional or technical competencies.
+- Never include person names, contact details, links, locations, spoken languages, date ranges, or sentence fragments in skills.
+- Never include separators or formatting artifacts as skills (for example lines like \"_____\", bullets, or punctuation-only strings).
+- Avoid generic fillers as skills (for example \"web\", \"development\", \"developer\", \"with\", \"present\")."""
+
+
 CV_ANALYSIS_RESPONSE_SCHEMA = {
     "type": "OBJECT",
     "properties": {
@@ -17,9 +23,10 @@ CV_ANALYSIS_RESPONSE_SCHEMA = {
                 "education": {"type": "ARRAY", "items": {"type": "STRING"}},
                 "projects": {"type": "ARRAY", "items": {"type": "STRING"}},
                 "skills": {"type": "ARRAY", "items": {"type": "STRING"}},
+                "languages": {"type": "ARRAY", "items": {"type": "STRING"}},
                 "links": {"type": "ARRAY", "items": {"type": "STRING"}},
             },
-            "required": ["name", "email", "phone", "summary", "experience", "education", "projects", "skills", "links"],
+            "required": ["name", "email", "phone", "summary", "experience", "education", "projects", "skills", "languages", "links"],
         },
         "recommended_roles": {
             "type": "ARRAY",
@@ -122,6 +129,7 @@ Rules:
 - role_specific_cv_score must be an integer from 0 to 100.
 - If a detail is not available, return an empty string or empty array.
 - Do not return an empty recommended_roles list unless the CV text is genuinely unreadable.
+{SKILL_HYGIENE_RULES}
 - Return JSON only. Do not add markdown fences or commentary.
 
 Required JSON shape:
@@ -182,6 +190,8 @@ Rules:
 - If the selected role is clearly technical or domain-specific, such as Mechanical Engineer, infer benchmark skills from the role even when the parsed skills list is empty.
 - For a selected role analysis, missing_skills and recommended_skills must not be empty. Return the most important role-related skills that the candidate should develop next.
 - matched_skills can be empty, but missing_skills and recommended_skills should still be populated from the selected role benchmark.
+- missing_skills and recommended_skills must each contain at least 3 concise role-related items.
+{SKILL_HYGIENE_RULES}
 - matched_skills_percentage and score must be integers from 0 to 100.
 - role_specific_cv_score must be an integer from 0 to 100.
 - Return JSON only. Do not add markdown fences or commentary.

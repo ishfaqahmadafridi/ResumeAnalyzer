@@ -15,7 +15,7 @@ export function WorkspaceFitBreakdown({ analysis }: UseCVWorkspaceResult) {
   return (
     <div className="space-y-6">
       <WorkspaceFitScores roleScore={analysis.role_specific_cv_score} matchedPercentage={analysis.matched_skills_percentage} />
-      <CVAnalysisResultsStrengths strengths={analysis.matched_skills} roleName={analysis.role} cvSkills={analysis.your_skills} />
+      <CVAnalysisResultsStrengths strengths={[]} roleName={analysis.role} cvSkills={analysis.your_skills} />
       <WorkspaceFitSkills missingSkills={analysis.missing_skills} recommendedSkills={analysis.recommended_skills} />
     </div>
   );

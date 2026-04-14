@@ -6,7 +6,7 @@ from rest_framework import generics, parsers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .analysis_engine_parts import analyze_cv_text, parse_structured_cv
+from .analysis_engine_parts import ModelUnavailableError, analyze_cv_text, parse_structured_cv
 from .models import AnalysisResult, CV, RecommendedRole, VerificationResult
 from .serializers import CVSerializer
 from .text_extractor import extract_text_from_uploaded_file
@@ -111,12 +111,22 @@ class CVRoleAnalysisView(APIView):
         cv_id = request.data.get("cv_id")
         selected_role = request.data.get("role") or request.data.get("selected_role")
 
+        if not selected_role or not str(selected_role).strip():
+            return Response(
+                {"detail": "Role is required. Please select a recommended role or enter your own role."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        selected_role = str(selected_role).strip()
+
         try:
             cv = CV.objects.get(pk=cv_id, user=request.user)
         except CV.DoesNotExist:
             return Response({"detail": "CV not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        analysis = analyze_cv_text(cv.raw_text or "", selected_role=selected_role)
+        try:
+            analysis = analyze_cv_text(cv.raw_text or "", selected_role=selected_role)
+        except ModelUnavailableError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         _save_analysis_result(cv, analysis)
         _replace_recommended_roles(cv, analysis["recommended_roles"])
         return Response(analysis)

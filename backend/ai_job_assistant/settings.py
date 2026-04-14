@@ -103,6 +103,7 @@ CV_ANALYSIS_USE_LLM = os.getenv("CV_ANALYSIS_USE_LLM", "false").lower() == "true
 CV_LLM_PROVIDER = os.getenv("CV_LLM_PROVIDER", "gemini")
 CV_GEMINI_MODEL = os.getenv("CV_GEMINI_MODEL", "gemini-2.5-flash")
 CV_GEMINI_MAX_PROMPT_CHARS = int(os.getenv("CV_GEMINI_MAX_PROMPT_CHARS", "4000"))
+CV_ROLE_ANALYSIS_MODEL_REQUIRED = os.getenv("CV_ROLE_ANALYSIS_MODEL_REQUIRED", "true").lower() == "true"
 
 # Several local migration files are empty/corrupted in this workspace. Using
 # direct model sync keeps test/dev environments usable until migrations are

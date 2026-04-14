@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from .interview_agent import interview_turn_agent
 from .nodes import application_agent, job_searcher, notification_agent, profile_analyzer
 
 
@@ -27,6 +28,10 @@ def run_application_workflow(
         state = job_searcher(state)
         state["notifications"].append("Found matching roles. Review details.")
         return state
+
+    elif action == "interview_turn":
+        state = interview_turn_agent(state)
+        return state
         
     elif action == "approve_applications":
         state["notifications"].append("Starting application process...")
@@ -35,15 +40,10 @@ def run_application_workflow(
         return state
         
     elif action == "answer_question":
-        # Process the final application step
-        state["jobs"] = [
-            {
-                "title": "Frontend Web Developer",
-                "company": "Remote Setup",
-                "location": "Remote",
-                "url": "https://linkedin.com/jobs/demo"
-            }
-        ]
+        # Use runtime jobs from action payload or previously discovered jobs.
+        provided_jobs = (state.get("action_data") or {}).get("jobs")
+        if isinstance(provided_jobs, list) and provided_jobs:
+            state["jobs"] = provided_jobs
         state = application_agent(state)
         state = notification_agent(state)
         return state
