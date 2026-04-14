@@ -13,3 +13,5 @@ class WorkflowState(TypedDict):
     jobs: NotRequired[list[dict]]
     applications: NotRequired[list[dict]]
     notifications: NotRequired[list[str]]
+    interview_reply: NotRequired[str]
+    interview_role: NotRequired[str]

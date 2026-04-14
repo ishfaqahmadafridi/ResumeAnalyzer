@@ -45,13 +45,25 @@ export function useCVWorkspace(): UseCVWorkspaceResult {
 
   async function uploadCV() {
     if (!token || !selectedFile) return;
+    const startedAt = performance.now();
     try {
       const uploaded = await api.uploadCV(token, selectedFile);
+      const elapsedSec = ((performance.now() - startedAt) / 1000).toFixed(1);
       setUploadIssue(null);
       setCustomRole("");
       dispatch(selectRole(null));
       dispatch(upsertCV(uploaded));
-      toast.success("CV uploaded and analyzed");
+      toast.success("CV uploaded", {
+        description: `Initial analysis finished in ${elapsedSec}s. Select a role to see Role Fit Breakdown.`,
+        duration: 4500,
+      });
+
+      if (!uploaded.recommended_roles?.length) {
+        toast.warning("No recommended roles detected", {
+          description: "AI model may be unavailable (for example expired API key), or the CV needs clearer role keywords. Enter your own role to continue.",
+          duration: 6000,
+        });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Upload failed";
       const guidance = getUploadGuidance(message, selectedFile.name);
@@ -65,10 +77,15 @@ export function useCVWorkspace(): UseCVWorkspaceResult {
   async function analyzeRole(role: string) {
     if (!token || !selectedCv) return;
     dispatch(selectRole(role));
+    const startedAt = performance.now();
     try {
       const result = await api.analyzeRole(token, selectedCv.id, role);
+      const elapsedSec = ((performance.now() - startedAt) / 1000).toFixed(1);
       dispatch(setRoleAnalysis(result));
-      toast.success(`Re-analyzed for ${role}`);
+      toast.success(`Role analysis ready: ${role}`, {
+        description: `Completed in ${elapsedSec}s.`,
+        duration: 4000,
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Role analysis failed");
     }
@@ -89,10 +106,45 @@ export function useCVWorkspace(): UseCVWorkspaceResult {
     dispatch(selectCv(id));
   };
 
-  const recommendedRoles = latestRoleAnalysis?.recommended_roles ?? [];
+  const recommendedRoles =
+    latestRoleAnalysis?.recommended_roles?.length
+      ? latestRoleAnalysis.recommended_roles
+      : (selectedCv?.recommended_roles ?? []).map((role: any) => ({
+          role: role.title,
+          matched_skills: [],
+          missing_skills: [],
+          matched_skills_percentage: role.match_percentage,
+        }));
   const analysis = latestRoleAnalysis?.analysis;
   const structured = latestRoleAnalysis?.structured_data;
-  const detectedSkills = structured?.skills ?? [];
+  const uiSkillNoiseTerms = [
+    "english",
+    "urdu",
+    "pashto",
+    "romanian",
+    "spanish",
+    "university",
+    "college",
+    "degree",
+    "education",
+    "linkedin",
+    "github",
+    "gmail",
+    "rawalpindi",
+    "punjab",
+    "islamabad",
+  ];
+  const sanitizeUiSkills = (items: string[] = []) =>
+    items.filter((value) => {
+      const normalized = String(value || "").toLowerCase().trim();
+      if (!normalized) return false;
+      if (normalized.includes("http") || normalized.includes("www.") || normalized.includes("@") || normalized.includes(".com")) {
+        return false;
+      }
+      return !uiSkillNoiseTerms.some((term) => normalized.includes(term));
+    });
+
+  const detectedSkills = sanitizeUiSkills(analysis?.your_skills?.length ? analysis.your_skills : (structured?.skills ?? []));
   const hasDetectedProfileSignals = Boolean(structured?.summary || structured?.experience?.length || structured?.projects?.length || detectedSkills.length);
 
   return {

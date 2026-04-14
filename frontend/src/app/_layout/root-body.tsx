@@ -1,4 +1,5 @@
 import { StoreProvider } from "@/store/providers";
+import { AppToaster } from "@/components/ui/app-toaster";
 import { AuthGate } from "./auth-gate";
 
 export function RootBody({ children }: { children: React.ReactNode }) {
@@ -7,6 +8,7 @@ export function RootBody({ children }: { children: React.ReactNode }) {
       <body>
         <StoreProvider>
           <AuthGate>{children}</AuthGate>
+          <AppToaster />
         </StoreProvider>
       </body>
     </html>

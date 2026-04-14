@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from typing import Any
 from urllib import error, parse, request
@@ -9,6 +10,26 @@ from django.conf import settings
 
 
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+logger = logging.getLogger(__name__)
+
+
+def _configured_models(preferred: str | None = None) -> list[str]:
+    models: list[str] = []
+    if preferred and preferred.strip():
+        models.append(preferred.strip())
+
+    env_models = os.getenv("CV_GEMINI_FALLBACK_MODELS", "").strip()
+    if env_models:
+        models.extend([item.strip() for item in env_models.split(",") if item.strip()])
+    else:
+        # Conservative defaults for runtime failover when the primary model is overloaded.
+        models.extend(["gemini-2.0-flash", "gemini-1.5-flash"])
+
+    deduped: list[str] = []
+    for model in models:
+        if model not in deduped:
+            deduped.append(model)
+    return deduped
 
 
 def _configured_api_keys() -> list[str]:
@@ -100,7 +121,8 @@ def generate_with_gemini(
     system_instruction: str | None = None,
 ) -> dict[str, Any] | None:
     selected_model = model or getattr(settings, "CV_GEMINI_MODEL", "")
-    if not selected_model:
+    candidate_models = _configured_models(selected_model)
+    if not candidate_models:
         return None
 
     payload: dict[str, Any] = {
@@ -125,30 +147,41 @@ def generate_with_gemini(
     body = json.dumps(payload).encode("utf-8")
 
     timeout_seconds = int(os.getenv("CV_GEMINI_TIMEOUT_SECONDS", "45"))
-    for api_key in _configured_api_keys():
-        endpoint = f"{GEMINI_API_BASE}/{parse.quote(selected_model)}:generateContent?key={parse.quote(api_key)}"
-        req = request.Request(
-            endpoint,
-            data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with request.urlopen(req, timeout=timeout_seconds) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-        except (error.HTTPError, error.URLError, TimeoutError, json.JSONDecodeError):
-            continue
+    for selected_model in candidate_models:
+        for api_key in _configured_api_keys():
+            endpoint = f"{GEMINI_API_BASE}/{parse.quote(selected_model)}:generateContent?key={parse.quote(api_key)}"
+            req = request.Request(
+                endpoint,
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with request.urlopen(req, timeout=timeout_seconds) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+            except error.HTTPError as exc:
+                if exc.code in (401, 403):
+                    logger.warning(
+                        "Gemini request rejected (model=%s status=%s). Check GEMINI_API_KEY or CV_GEMINI_API_KEYS.",
+                        selected_model,
+                        exc.code,
+                    )
+                else:
+                    logger.warning("Gemini HTTP error (model=%s status=%s).", selected_model, exc.code)
+                continue
+            except (error.URLError, TimeoutError, json.JSONDecodeError):
+                continue
 
-        text = _extract_json_object(_extract_text_from_response(payload))
-        if not text:
-            continue
+            text = _extract_json_object(_extract_text_from_response(payload))
+            if not text:
+                continue
 
-        try:
-            parsed = json.loads(text)
-        except json.JSONDecodeError:
-            continue
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                continue
 
-        if isinstance(parsed, dict):
-            return parsed
+            if isinstance(parsed, dict):
+                return parsed
 
     return None
