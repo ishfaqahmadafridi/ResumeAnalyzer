@@ -8,8 +8,11 @@ export function InterviewChatInputWrapper(props: UseInterviewWorkspaceResult) {
       <InterviewChatTextarea 
         interviewDraft={props.interviewDraft} 
         setInterviewDraft={props.setInterviewDraft} 
+        onSubmit={() => {
+          void props.sendMessage();
+        }}
       />
-      <InterviewChatControls sendMessage={props.sendMessage} />
+      <InterviewChatControls {...props} />
     </div>
   );
 }
