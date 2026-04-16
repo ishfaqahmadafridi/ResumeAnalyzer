@@ -147,3 +147,25 @@ class CVStructuredParseView(APIView):
             return Response({"detail": "Provide either cv_id or raw_text."}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(parse_structured_cv(raw_text))
+
+
+class CVTextUpdateView(APIView):
+    def patch(self, request, pk):
+        try:
+            cv = CV.objects.get(pk=pk, user=request.user)
+        except CV.DoesNotExist:
+            return Response({"detail": "CV not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        raw_text = str(request.data.get("raw_text") or "").strip()
+        if not raw_text:
+            return Response({"detail": "raw_text is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cv.raw_text = raw_text
+        cv.save(update_fields=["raw_text", "updated_at"])
+
+        analysis = analyze_cv_text(raw_text)
+        _save_analysis_result(cv, analysis)
+        _replace_recommended_roles(cv, analysis["recommended_roles"])
+        _save_verification_result(cv, raw_text)
+
+        return Response(CVSerializer(cv).data)
