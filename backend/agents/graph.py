@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from .cv_update_agent import improve_cv_agent
 from .interview_agent import interview_turn_agent
 from .nodes import application_agent, job_searcher, notification_agent, profile_analyzer
 
@@ -31,6 +32,10 @@ def run_application_workflow(
 
     elif action == "interview_turn":
         state = interview_turn_agent(state)
+        return state
+
+    elif action == "improve_cv":
+        state = improve_cv_agent(state)
         return state
         
     elif action == "approve_applications":

@@ -91,4 +91,37 @@ export const api = {
       json: payload,
     });
   },
+  improveCV(
+    token: string,
+    payload: {
+      user_id: string;
+      cv_text: string;
+      thread_id?: string;
+      cv_data: {
+        name: string;
+        sections: Array<{ title: string; items: string[] }>;
+      };
+    },
+  ) {
+    return request<AgentWorkflowResult>("/core/orchestrate/", {
+      method: "POST",
+      token,
+      json: {
+        user_id: payload.user_id,
+        cv_text: payload.cv_text,
+        thread_id: payload.thread_id,
+        action: "improve_cv",
+        action_data: {
+          cv_data: payload.cv_data,
+        },
+      },
+    });
+  },
+  updateCVText(token: string, cvId: string, rawText: string) {
+    return request<CVRecord>(`/cv/${cvId}/update-text/`, {
+      method: "PATCH",
+      token,
+      json: { raw_text: rawText },
+    });
+  },
 };

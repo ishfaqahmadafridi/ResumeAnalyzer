@@ -82,6 +82,12 @@ export type CVRoleAnalysis = {
 
 export type AgentWorkflowResult = {
   thread_id: string;
+  improved_cv?: {
+    name: string;
+    sections: Array<{ title: string; items: string[] }>;
+    improvements?: string[];
+    suggested_skills?: string[];
+  };
   profile_summary?: {
     recommended_roles?: Array<{
       role: string;
