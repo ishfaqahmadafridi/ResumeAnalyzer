@@ -1,4 +1,11 @@
-export function InterviewCvContextDisplay({ activeInterviewRole, latestAnalysis }: { activeInterviewRole: string | null, latestAnalysis: any | null }) {
+import type { CVRoleAnalysis } from "@/types";
+
+interface Props {
+  activeInterviewRole: string | null;
+  latestAnalysis: CVRoleAnalysis | null;
+}
+
+export function InterviewCvContextDisplay({ activeInterviewRole, latestAnalysis }: Props) {
   const matchedSkills = latestAnalysis?.analysis?.matched_skills?.slice(0, 4).join(", ") || "not available";
   
   return (
